@@ -1,0 +1,35 @@
+/**
+ *  2009-2025 Tecnoacquisti.com
+ *
+ *  For support feel free to contact us on our website at http://www.tecnoacquisti.com
+ *
+ *  @author    Arte e Informatica <helpdesk@tecnoacquisti.com>
+ *  @copyright 2009-2025 Arte e Informatica
+ *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
+ *  @version   2.3.0
+ */
+
+#cleanshare-toast {
+    display:none;
+    position:fixed;
+    bottom:20px;
+    left:50%;
+    transform:translateX(-50%);
+    z-index:9999;
+    padding:10px 14px;
+    border-radius:6px;
+    background:#333333;
+    color:#ffffff;
+}
+
+button#cleanshare-btn {
+    background: #3e3e3e !important;
+    color: #ffffff !important;
+    border-radius: 10px;
+    margin: 5px;
+}
+
+button#cleanshare-btn:hover {
+    background: #100d0d !important;
+}
+
