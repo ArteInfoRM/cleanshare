@@ -10,91 +10,119 @@
  */
 
 document.addEventListener('DOMContentLoaded', function () {
-    const btn = document.getElementById('cleanshare-btn');
-    const toast = document.getElementById('cleanshare-toast');
+  const btn = document.getElementById('cleanshare-btn');
+  const toast = document.getElementById('cleanshare-toast');
 
-    if (!btn) return;
+  // carica traduzioni da window.cleanshare.translations (se disponibili)
+  const translations = (window.cleanshare && window.cleanshare.translations) || {};
 
-    btn.addEventListener('click', async function (e) {
-        e.preventDefault();
+  function t(key, value) {
+    const raw = translations[key];
+    const val = typeof value === 'undefined' ? '' : String(value);
+    if (typeof raw === 'string') {
+      return raw.replace(/%s/g, val);
+    }
+    // fallback hardcoded in inglese
+    const fallbacks = {
+      copy_failed: 'Copy failed. URL: %s',
+      copy_not_supported: 'Copy not supported. URL: %s',
+      url_copied: 'URL copied to clipboard'
+    };
+    return (fallbacks[key] || key).replace(/%s/g, val);
+  }
 
-        const url = btn.dataset.cleanUrl;
-        const title = document.title || '';
-        const text = btn.getAttribute('aria-label') || '';
+  if (!btn) return;
 
-        if (!url) {
-            console.warn('CleanShare: no clean url provided');
-            return;
-        }
+  btn.addEventListener('click', async function (e) {
+    e.preventDefault();
 
-        // Web Share API (mobile modern browsers)
-        if (navigator.share) {
-            try {
-                await navigator.share({
-                    title: title,
-                    text: text,
-                    url: url
-                });
-                // opzionale: feedback all'utente
-            } catch (err) {
-                // user cancelled or error — fallback al copia
-                fallbackCopy(url);
-            }
-            return;
-        }
+    const url = btn.dataset.cleanUrl;
+    const title = document.title || '';
+    const text = btn.getAttribute('aria-label') || '';
 
-        // Fallback: copia negli appunti (HTTPS richiesto)
+    if (!url) {
+      console.warn('CleanShare: no clean url provided');
+      return;
+    }
+
+    // Web Share API (mobile modern browsers)
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: title,
+          text: text,
+          url: url
+        });
+        // opzionale: feedback all'utente
+      } catch (err) {
+        // user cancelled or error — fallback al copia
         fallbackCopy(url);
-    });
-
-    function fallbackCopy(textToCopy) {
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-            navigator.clipboard.writeText(textToCopy).then(function () {
-                showToast();
-            }).catch(function (err) {
-                // ultimo fallback: seleziona e copia textarea
-                legacyCopy(textToCopy);
-            });
-        } else {
-            legacyCopy(textToCopy);
-        }
+      }
+      return;
     }
 
-    function legacyCopy(text) {
-        const ta = document.createElement('textarea');
-        ta.value = text;
-        // evita scorrimenti
-        ta.style.position = 'fixed';
-        ta.style.left = '-9999px';
-        document.body.appendChild(ta);
-        ta.focus();
-        ta.select();
+    // Fallback: copia negli appunti (HTTPS richiesto)
+    fallbackCopy(url);
+  });
 
-        try {
-            const successful = document.execCommand('copy');
-            if (successful) showToast();
-            else alert('Copy failed. URL: ' + text);
-        } catch (err) {
-            alert('Copy not supported. URL: ' + text);
-        }
-        document.body.removeChild(ta);
+  function fallbackCopy(textToCopy) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(textToCopy).then(function () {
+        showToast();
+      }).catch(function (err) {
+        // ultimo fallback: seleziona e copia textarea
+        legacyCopy(textToCopy);
+      });
+    } else {
+      legacyCopy(textToCopy);
     }
+  }
 
-    function showToast() {
-        if (!toast) {
-            alert('URL copied to clipboard: ' + btn.dataset.cleanUrl);
-            return;
-        }
-        toast.style.display = 'block';
-        setTimeout(() => {
-            toast.style.opacity = '1';
-        }, 10);
-        setTimeout(() => {
-            toast.style.transition = 'opacity 300ms';
-            toast.style.opacity = '0';
-            setTimeout(() => {
-                toast.style.display = 'none';
-            }, 300);
-        }, 2000);
+  function legacyCopy(text) {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    // evita scorrimenti
+    ta.style.position = 'fixed';
+    ta.style.left = '-9999px';
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+
+    try {
+      const successful = document.execCommand('copy');
+      if (successful) showToast();
+      else {
+        // usa traduzione
+        const msg = t('copy_failed', text);
+        alert(msg);
+      }
+    } catch (err) {
+      const msg = t('copy_not_supported', text);
+      alert(msg);
     }
+    document.body.removeChild(ta);
+  }
+
+  function showToast() {
+    const message = t('url_copied', btn.dataset.cleanUrl);
+    if (!toast) {
+      alert(message);
+      return;
+    }
+    // aggiorna contenuto del toast con la traduzione
+    if ('textContent' in toast) toast.textContent = message;
+    else toast.innerText = message;
+
+    toast.style.display = 'block';
+    setTimeout(() => {
+      toast.style.opacity = '1';
+    }, 10);
+    setTimeout(() => {
+      toast.style.transition = 'opacity 300ms';
+      toast.style.opacity = '0';
+      setTimeout(() => {
+        toast.style.display = 'none';
+      }, 300);
+    }, 2000);
+  }
 });

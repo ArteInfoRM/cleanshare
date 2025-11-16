@@ -33,3 +33,22 @@ button#cleanshare-btn:hover {
     background: #100d0d !important;
 }
 
+#share-float {
+  position: fixed;
+  bottom: 50px;
+  left: 20px;
+  z-index: 9999; /* tienilo sopra a tutto */
+}
+
+#share-float #cleanshare-btn {
+  border-radius: 12px;
+  padding: 10px 16px;
+  background: #333;
+  color: #fff;
+}
+
+#share-float #cleanshare-btn .material-icons {
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
