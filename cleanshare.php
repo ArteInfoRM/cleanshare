@@ -1,4 +1,5 @@
 <?php
+
 /**
  *  2009-2025 Tecnoacquisti.com
  *
@@ -7,25 +8,24 @@
 @author    Arte e Informatica <helpdesk@tecnoacquisti.com>
  *  @copyright 2009-2025 Arte e Informatica
  *  @license   One Paid Licence By WebSite Using This Module. No Rent. No Sell. No Share.
+ *
  *  @version   1.0
  */
-
 if (!defined('_PS_VERSION_')) {
     exit;
 }
 
 class CleanShare extends Module
 {
-
-    const CONF_FLOAT_ENABLED = 'CLEANSHARE_FLOAT_ENABLED';
-    const CONF_FLOAT_POSITION = 'CLEANSHARE_FLOAT_POSITION';
-    const CONF_FLOAT_BOTTOM = 'CLEANSHARE_FLOAT_BOTTOM';
-    const CONF_FLOAT_ZINDEX = 'CLEANSHARE_FLOAT_ZINDEX';
-    const CONF_BUTTON_POSITION = 'CLEANSHARE_BUTTON_POSITION';
-    const CONF_FLOAT_BG = 'CLEANSHARE_FLOAT_BG';
-    const CONF_FLOAT_TEXT = 'CLEANSHARE_FLOAT_TEXT';
-    const CONF_FLOAT_BG_HOVER = 'CLEANSHARE_FLOAT_BG_HOVER';
-    const CONF_FLOAT_TEXT_HOVER = 'CLEANSHARE_FLOAT_TEXT_HOVER';
+    public const CONF_FLOAT_ENABLED = 'CLEANSHARE_FLOAT_ENABLED';
+    public const CONF_FLOAT_POSITION = 'CLEANSHARE_FLOAT_POSITION';
+    public const CONF_FLOAT_BOTTOM = 'CLEANSHARE_FLOAT_BOTTOM';
+    public const CONF_FLOAT_ZINDEX = 'CLEANSHARE_FLOAT_ZINDEX';
+    public const CONF_BUTTON_POSITION = 'CLEANSHARE_BUTTON_POSITION';
+    public const CONF_FLOAT_BG = 'CLEANSHARE_FLOAT_BG';
+    public const CONF_FLOAT_TEXT = 'CLEANSHARE_FLOAT_TEXT';
+    public const CONF_FLOAT_BG_HOVER = 'CLEANSHARE_FLOAT_BG_HOVER';
+    public const CONF_FLOAT_TEXT_HOVER = 'CLEANSHARE_FLOAT_TEXT_HOVER';
 
     public function __construct()
     {
@@ -71,7 +71,7 @@ class CleanShare extends Module
 
         $controller->registerJavascript(
             'module-cleanshare-js',
-            'modules/'.$this->name.'/views/js/cleanshare.js',
+            'modules/' . $this->name . '/views/js/cleanshare.js',
             [
                 'position' => 'bottom',
                 'priority' => 150,
@@ -81,7 +81,7 @@ class CleanShare extends Module
 
         $controller->registerStylesheet(
             'module-cleanshare-css',
-            'modules/'.$this->name.'/views/css/cleanshare.css',
+            'modules/' . $this->name . '/views/css/cleanshare.css',
             [
                 'media' => 'all',
                 'priority' => 150,
@@ -93,8 +93,8 @@ class CleanShare extends Module
     public function getContent()
     {
         $output = '';
-        $useSsl = (bool)Configuration::get('PS_SSL_ENABLED_EVERYWHERE') || (bool)Configuration::get('PS_SSL_ENABLED');
-        $shop_base_url = $this->context->link->getBaseLink((int)$this->context->shop->id, $useSsl);
+        $useSsl = (bool) Configuration::get('PS_SSL_ENABLED_EVERYWHERE') || (bool) Configuration::get('PS_SSL_ENABLED');
+        $shop_base_url = $this->context->link->getBaseLink((int) $this->context->shop->id, $useSsl);
 
         if (Tools::isSubmit('submitCleanshareModule')) {
             $floatEnabled = Tools::getValue(self::CONF_FLOAT_ENABLED) ? '1' : '0';
@@ -136,7 +136,7 @@ class CleanShare extends Module
                         'is_bool' => true,
                         'values' => [
                             ['id' => 'active_on', 'value' => '1', 'label' => $this->l('Enabled')],
-                            ['id' => 'active_off', 'value' => '0', 'label' => $this->l('Disabled')]
+                            ['id' => 'active_off', 'value' => '0', 'label' => $this->l('Disabled')],
                         ],
                     ],
                     [
@@ -206,9 +206,9 @@ class CleanShare extends Module
                 ],
                 'submit' => [
                     'title' => $this->l('Save'),
-                    'class' => 'btn btn-default pull-right'
-                ]
-            ]
+                    'class' => 'btn btn-default pull-right',
+                ],
+            ],
         ];
 
         $helper = new HelperForm();
@@ -218,7 +218,7 @@ class CleanShare extends Module
         $helper->identifier = $this->identifier;
         $helper->submit_action = 'submitCleanshareModule';
         $helper->token = Tools::getAdminTokenLite('AdminModules');
-        $helper->currentIndex = AdminController::$currentIndex.'&configure='.$this->name;
+        $helper->currentIndex = AdminController::$currentIndex . '&configure=' . $this->name;
 
         // valori correnti
         $helper->fields_value[self::CONF_FLOAT_ENABLED] = Configuration::get(self::CONF_FLOAT_ENABLED);
@@ -235,16 +235,14 @@ class CleanShare extends Module
             $this->context->smarty->assign('module_dir', $this->_path);
         }
 
-        $this->context->smarty->assign(array(
+        $this->context->smarty->assign([
             'shop_base_url' => $shop_base_url,
-        ));
+        ]);
 
         $output .= $helper->generateForm([$fields_form]);
-        $output .= $this->context->smarty->fetch($this->local_path.'views/templates/admin/copyright.tpl');
+        $output .= $this->context->smarty->fetch($this->local_path . 'views/templates/admin/copyright.tpl');
         return $output;
     }
-
-
 
     public function shareLink($params)
     {
@@ -252,7 +250,7 @@ class CleanShare extends Module
         $product = isset($params['product']) ? $params['product'] : null;
 
         if ($product && isset($product->id)) {
-            $id_product = (int)$product->id;
+            $id_product = (int) $product->id;
             $cleanUrl = $this->context->link->getProductLink($id_product, null, null, null, $this->context->language->id);
         } else {
             $cleanUrl = $this->context->link->getPageLink($this->context->controller->php_self, true, $this->context->language->id);
@@ -260,7 +258,7 @@ class CleanShare extends Module
 
         $this->context->smarty->assign([
             'cleanshare_clean_url' => $cleanUrl,
-            'cleanshare_button_text' => $this->l('Share')
+            'cleanshare_button_text' => $this->l('Share'),
         ]);
 
         return $this->display(__FILE__, 'views/templates/hook/cleanshare_button.tpl');
@@ -367,12 +365,11 @@ class CleanShare extends Module
 
         $this->context->smarty->assign([
             'cleanshare_clean_url' => $cleanUrl,
-            'cleanshare_button_text' => $this->l('Share this page')
+            'cleanshare_button_text' => $this->l('Share this page'),
         ]);
 
         return $this->display(__FILE__, 'views/templates/hook/cleanshare_float.tpl');
     }
-
 
     public function hookDisplayProductAdditionalInfo($params)
     {
@@ -403,10 +400,10 @@ class CleanShare extends Module
             'float_position' => Configuration::get(self::CONF_FLOAT_POSITION),
             'float_bottom' => (int) Configuration::get(self::CONF_FLOAT_BOTTOM),
             'float_zindex' => (int) Configuration::get(self::CONF_FLOAT_ZINDEX),
-            'float_bg'            => Configuration::get(self::CONF_FLOAT_BG),
-            'float_text'          => Configuration::get(self::CONF_FLOAT_TEXT),
-            'float_bg_hover'      => Configuration::get(self::CONF_FLOAT_BG_HOVER),
-            'float_text_hover'    => Configuration::get(self::CONF_FLOAT_TEXT_HOVER),
+            'float_bg' => Configuration::get(self::CONF_FLOAT_BG),
+            'float_text' => Configuration::get(self::CONF_FLOAT_TEXT),
+            'float_bg_hover' => Configuration::get(self::CONF_FLOAT_BG_HOVER),
+            'float_text_hover' => Configuration::get(self::CONF_FLOAT_TEXT_HOVER),
         ]);
 
         // style tpl (genera lo style inline in base alla config)
@@ -417,5 +414,4 @@ class CleanShare extends Module
 
         return $translationsTpl . $styleTpl . $floatOutput;
     }
-
 }

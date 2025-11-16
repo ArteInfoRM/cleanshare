@@ -1,4 +1,5 @@
 <?php
+
 /**
  * 2009-2025 Tecnoacquisti.com
  *
@@ -7,6 +8,7 @@
  * @author    Arte e Informatica <helpdesk@tecnoacquisti.com>
  * @copyright 2009-2025 Arte e Informatica
  * @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
+ *
  * @version   1.0.0
  */
 header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
