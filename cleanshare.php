@@ -53,16 +53,15 @@ class CleanShare extends Module
         Configuration::updateValue(self::CONF_FLOAT_BG_HOVER, '#1976D2');      // blu scuro hover
         Configuration::updateValue(self::CONF_FLOAT_TEXT_HOVER, '#ffffff');    // testo hover bianco
 
-        return parent::install() &&
-            $this->registerHook('displayProductAdditionalInfo') &&
-            $this->registerHook('showProductCustomized') &&
-            $this->registerHook('displayHeader') &&
-            $this->registerHook('actionFrontControllerSetMedia');
+        return parent::install()
+            && $this->registerHook('displayProductAdditionalInfo')
+            && $this->registerHook('showProductCustomized')
+            && $this->registerHook('displayHeader')
+            && $this->registerHook('actionFrontControllerSetMedia');
     }
 
     public function hookActionFrontControllerSetMedia($params)
     {
-
         $controller = $this->context->controller;
         if (!$controller) {
             return;
@@ -245,7 +244,6 @@ class CleanShare extends Module
 
     public function shareLink($params)
     {
-
         $product = isset($params['product']) ? $params['product'] : null;
 
         if ($product && isset($product->id)) {
