@@ -1,0 +1,16 @@
+/**
+ *  2009-2025 Tecnoacquisti.com
+ *
+ *  For support feel free to contact us on our website at http://www.tecnoacquisti.com
+ *
+ *  @author    Arte e Informatica <helpdesk@tecnoacquisti.com>
+ *  @copyright 2009-2025 Arte e Informatica
+ *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
+ *  @version   2.3.0
+ */
+
+.panel-footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}

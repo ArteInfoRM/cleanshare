@@ -11,18 +11,17 @@
 *
 *}
 
-<div id="share-float">
-<button
-        type="button"
-        id="cleanshare-btn"
-        class="btn btn-outline-secondary"
-        data-clean-url="{$cleanshare_clean_url|escape:'html':'UTF-8'}"
-        aria-label="{$cleanshare_button_text|escape:'html':'UTF-8'}"
->
-    <i class="material-icons">share</i> {$cleanshare_button_text|escape:'html':'UTF-8'}
-</button>
+<div id="share-float" class="cleanshare-wrapper">
+  <button type="button"
+          id="cleanshare-btn"
+          class="btn btn-outline-secondary cleanshare-btn"
+          data-clean-url="{$cleanshare_clean_url}"
+          aria-label="{$cleanshare_button_text}">
+    <i class="material-icons">share</i> {$cleanshare_button_text}
+  </button>
 
-<div id="cleanshare-toast">
+  <div id="cleanshare-toast" class="cleanshare-toast">
     {l s='Copied URL to clipboard' mod='cleanshare'}
+  </div>
 </div>
-</div>
+

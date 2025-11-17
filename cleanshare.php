@@ -30,7 +30,7 @@ class CleanShare extends Module
     {
         $this->name = 'cleanshare';
         $this->tab = 'front_office_features';
-        $this->version = '1.0.1';
+        $this->version = '1.0.2';
         $this->author = 'Tecnoacquisti.com';
         $this->need_instance = 0;
         parent::__construct();
@@ -91,155 +91,291 @@ class CleanShare extends Module
     public function getContent()
     {
         $output = '';
-        $useSsl = (bool) Configuration::get('PS_SSL_ENABLED_EVERYWHERE') || (bool) Configuration::get('PS_SSL_ENABLED');
-        $shop_base_url = $this->context->link->getBaseLink((int) $this->context->shop->id, $useSsl);
+
+        // carico eventuali asset BO (CSS per uniformare PS8/PS9)
+        $this->loadBackOfficeAssets();
 
         if (Tools::isSubmit('submitCleanshareModule')) {
-            $floatEnabled = Tools::getValue(self::CONF_FLOAT_ENABLED) ? '1' : '0';
-            $posCandidate = strtolower((string) Tools::getValue(self::CONF_FLOAT_POSITION));
-            $allowed = ['left', 'right', 'centered'];
-            $floatPosition = in_array($posCandidate, $allowed, true) ? $posCandidate : 'right';
-            $floatBottom = (int) Tools::getValue(self::CONF_FLOAT_BOTTOM, 24);
-            $floatZ = (int) Tools::getValue(self::CONF_FLOAT_ZINDEX, 9999);
-            $buttonPos = in_array(Tools::getValue(self::CONF_BUTTON_POSITION), ['displayProductAdditionalInfo', 'showProductCustomized', 'disabled'])
-                ? Tools::getValue(self::CONF_BUTTON_POSITION) : 'displayProductAdditionalInfo';
-            $floatBg = preg_match('/^#([A-Fa-f0-9]{3}|[A-Fa-f0-9]{6})$/', Tools::getValue(self::CONF_FLOAT_BG)) ? Tools::getValue(self::CONF_FLOAT_BG) : '#2196F3';
-            $floatText = preg_match('/^#([A-Fa-f0-9]{3}|[A-Fa-f0-9]{6})$/', Tools::getValue(self::CONF_FLOAT_TEXT)) ? Tools::getValue(self::CONF_FLOAT_TEXT) : '#ffffff';
-            $floatBgHover = preg_match('/^#([A-Fa-f0-9]{3}|[A-Fa-f0-9]{6})$/', Tools::getValue(self::CONF_FLOAT_BG_HOVER)) ? Tools::getValue(self::CONF_FLOAT_BG_HOVER) : '#1976D2';
-            $floatTextHover = preg_match('/^#([A-Fa-f0-9]{3}|[A-Fa-f0-9]{6})$/', Tools::getValue(self::CONF_FLOAT_TEXT_HOVER)) ? Tools::getValue(self::CONF_FLOAT_TEXT_HOVER) : '#ffffff';
-
-            Configuration::updateValue(self::CONF_FLOAT_ENABLED, $floatEnabled);
-            Configuration::updateValue(self::CONF_FLOAT_POSITION, $floatPosition);
-            Configuration::updateValue(self::CONF_FLOAT_BOTTOM, $floatBottom);
-            Configuration::updateValue(self::CONF_FLOAT_ZINDEX, $floatZ);
-            Configuration::updateValue(self::CONF_BUTTON_POSITION, $buttonPos);
-            Configuration::updateValue(self::CONF_FLOAT_BG, $floatBg);
-            Configuration::updateValue(self::CONF_FLOAT_TEXT, $floatText);
-            Configuration::updateValue(self::CONF_FLOAT_BG_HOVER, $floatBgHover);
-            Configuration::updateValue(self::CONF_FLOAT_TEXT_HOVER, $floatTextHover);
-
-            $output .= $this->displayConfirmation($this->l('Settings saved'));
+            $output .= $this->processConfigurationForm();
         }
 
-        $fields_form = [
+        $output .= $this->renderConfigurationForm();
+        $output .= $this->renderCreditsBlock();
+
+        return $output;
+    }
+
+    /**
+     * Gestisce il salvataggio delle configurazioni dal form di BO.
+     *
+     * @return string HTML del messaggio di conferma/errore
+     */
+    protected function processConfigurationForm()
+    {
+        // normalize + validazione
+        $floatEnabled   = Tools::getValue(self::CONF_FLOAT_ENABLED) ? '1' : '0';
+
+        $posCandidate   = strtolower((string) Tools::getValue(self::CONF_FLOAT_POSITION));
+        $allowedPos     = ['left', 'right', 'centered'];
+        $floatPosition  = in_array($posCandidate, $allowedPos, true) ? $posCandidate : 'right';
+
+        // Floating bottom (px)
+        $bottomRaw = Tools::getValue(self::CONF_FLOAT_BOTTOM);
+        if (Validate::isUnsignedInt($bottomRaw)) {
+            $floatBottom = (int) $bottomRaw;
+        } else {
+            $floatBottom = 20;
+        }
+
+        // Floating z-index
+        $zRaw = Tools::getValue(self::CONF_FLOAT_ZINDEX);
+        if (Validate::isUnsignedInt($zRaw)) {
+            $floatZ = (int) $zRaw;
+        } else {
+            $floatZ = 9999;
+        }
+
+        $buttonPosCandidate = (string) Tools::getValue(self::CONF_BUTTON_POSITION);
+        $allowedHooks       = ['displayProductAdditionalInfo', 'showProductCustomized', 'disabled'];
+        $buttonPos          = in_array($buttonPosCandidate, $allowedHooks, true)
+            ? $buttonPosCandidate
+            : 'displayProductAdditionalInfo';
+
+        $floatBg        = $this->sanitizeColor(Tools::getValue(self::CONF_FLOAT_BG), '#2196F3');
+        $floatText      = $this->sanitizeColor(Tools::getValue(self::CONF_FLOAT_TEXT), '#ffffff');
+        $floatBgHover   = $this->sanitizeColor(Tools::getValue(self::CONF_FLOAT_BG_HOVER), '#1976D2');
+        $floatTextHover = $this->sanitizeColor(Tools::getValue(self::CONF_FLOAT_TEXT_HOVER), '#ffffff');
+
+        // persistenza
+        Configuration::updateValue(self::CONF_FLOAT_ENABLED, $floatEnabled);
+        Configuration::updateValue(self::CONF_FLOAT_POSITION, $floatPosition);
+        Configuration::updateValue(self::CONF_FLOAT_BOTTOM, $floatBottom);
+        Configuration::updateValue(self::CONF_FLOAT_ZINDEX, $floatZ);
+        Configuration::updateValue(self::CONF_BUTTON_POSITION, $buttonPos);
+        Configuration::updateValue(self::CONF_FLOAT_BG, $floatBg);
+        Configuration::updateValue(self::CONF_FLOAT_TEXT, $floatText);
+        Configuration::updateValue(self::CONF_FLOAT_BG_HOVER, $floatBgHover);
+        Configuration::updateValue(self::CONF_FLOAT_TEXT_HOVER, $floatTextHover);
+
+        return $this->displayConfirmation($this->l('Settings saved'));
+    }
+
+    /**
+     * Sanitizza un colore esadecimale, con fallback.
+     *
+     * @param string|null $value
+     * @param string      $fallback
+     *
+     * @return string
+     */
+    protected function sanitizeColor($value, $fallback)
+    {
+        if (is_string($value)
+            && preg_match('/^#([A-Fa-f0-9]{3}|[A-Fa-f0-9]{6})$/', $value)
+        ) {
+            return $value;
+        }
+
+        return $fallback;
+    }
+
+    /**
+     * Restituisce la definizione del form di configurazione.
+     *
+     * @return array
+     */
+    protected function getConfigForm()
+    {
+        return [
             'form' => [
                 'legend' => [
                     'title' => $this->l('CleanShare settings'),
+                    'icon'  => 'icon-share',
                 ],
                 'input' => [
                     [
-                        'type' => 'switch',
-                        'label' => $this->l('Enable floating button'),
-                        'name' => self::CONF_FLOAT_ENABLED,
+                        'type'    => 'switch',
+                        'label'   => $this->l('Enable floating button'),
+                        'name'    => self::CONF_FLOAT_ENABLED,
                         'is_bool' => true,
-                        'values' => [
-                            ['id' => 'active_on', 'value' => '1', 'label' => $this->l('Enabled')],
-                            ['id' => 'active_off', 'value' => '0', 'label' => $this->l('Disabled')],
+                        'values'  => [
+                            [
+                                'id'    => 'active_on',
+                                'value' => '1',
+                                'label' => $this->l('Enabled'),
+                            ],
+                            [
+                                'id'    => 'active_off',
+                                'value' => '0',
+                                'label' => $this->l('Disabled'),
+                            ],
                         ],
                     ],
                     [
-                        'type' => 'color',
+                        'type'  => 'color',
                         'label' => $this->l('Background color'),
-                        'name' => self::CONF_FLOAT_BG,
-                        'size' => 7,
+                        'name'  => self::CONF_FLOAT_BG,
+                        'size'  => 7,
                     ],
                     [
-                        'type' => 'color',
+                        'type'  => 'color',
                         'label' => $this->l('Text color'),
-                        'name' => self::CONF_FLOAT_TEXT,
-                        'size' => 7,
+                        'name'  => self::CONF_FLOAT_TEXT,
+                        'size'  => 7,
                     ],
                     [
-                        'type' => 'color',
+                        'type'  => 'color',
                         'label' => $this->l('Background color (hover)'),
-                        'name' => self::CONF_FLOAT_BG_HOVER,
-                        'size' => 7,
+                        'name'  => self::CONF_FLOAT_BG_HOVER,
+                        'size'  => 7,
                     ],
                     [
-                        'type' => 'color',
+                        'type'  => 'color',
                         'label' => $this->l('Text color (hover)'),
-                        'name' => self::CONF_FLOAT_TEXT_HOVER,
-                        'size' => 7,
+                        'name'  => self::CONF_FLOAT_TEXT_HOVER,
+                        'size'  => 7,
                     ],
                     [
-                        'type' => 'select',
+                        'type'  => 'select',
                         'label' => $this->l('Floating position'),
-                        'name' => self::CONF_FLOAT_POSITION,
+                        'name'  => self::CONF_FLOAT_POSITION,
                         'options' => [
                             'query' => [
-                                ['id' => 'left', 'name' => $this->l('Left')],
+                                ['id' => 'left',     'name' => $this->l('Left')],
                                 ['id' => 'centered', 'name' => $this->l('Centered')],
-                                ['id' => 'right', 'name' => $this->l('Right')],
+                                ['id' => 'right',    'name' => $this->l('Right')],
                             ],
-                            'id' => 'id',
+                            'id'   => 'id',
                             'name' => 'name',
                         ],
                     ],
                     [
-                        'type' => 'text',
+                        'type'  => 'text',
                         'label' => $this->l('Floating bottom (px)'),
-                        'name' => self::CONF_FLOAT_BOTTOM,
-                        'size' => 6,
+                        'name'  => self::CONF_FLOAT_BOTTOM,
+                        'size'  => 6,
+                        'hint'  => $this->l('Enter a non-negative integer value (pixels from the bottom).'),
                     ],
                     [
-                        'type' => 'text',
+                        'type'  => 'text',
                         'label' => $this->l('Floating z-index'),
-                        'name' => self::CONF_FLOAT_ZINDEX,
-                        'size' => 6,
+                        'name'  => self::CONF_FLOAT_ZINDEX,
+                        'size'  => 6,
+                        'hint'  => $this->l('Higher values keep the button on top of other elements. Non-negative integer.'),
                     ],
                     [
-                        'type' => 'select',
+                        'type'  => 'select',
                         'label' => $this->l('Position for the inline share button'),
-                        'name' => self::CONF_BUTTON_POSITION,
+                        'name'  => self::CONF_BUTTON_POSITION,
                         'options' => [
                             'query' => [
-                                ['id' => 'displayProductAdditionalInfo', 'name' => $this->l('displayProductAdditionalInfo')],
-                                ['id' => 'showProductCustomized', 'name' => $this->l('showProductCustomized')],
-                                ['id' => 'disabled', 'name' => $this->l('Disabled')],
+                                [
+                                    'id'   => 'displayProductAdditionalInfo',
+                                    'name' => $this->l('displayProductAdditionalInfo'),
+                                ],
+                                [
+                                    'id'   => 'showProductCustomized',
+                                    'name' => $this->l('showProductCustomized'),
+                                ],
+                                [
+                                    'id'   => 'disabled',
+                                    'name' => $this->l('Disabled'),
+                                ],
                             ],
-                            'id' => 'id',
+                            'id'   => 'id',
                             'name' => 'name',
                         ],
                     ],
                 ],
                 'submit' => [
                     'title' => $this->l('Save'),
-                    'class' => 'btn btn-default pull-right',
+                    'class' => 'btn btn-primary float-end',
                 ],
             ],
         ];
+    }
 
+    /**
+     * Valori attuali di configurazione per il form.
+     *
+     * @return array
+     */
+    protected function getConfigFormValues()
+    {
+        return [
+            self::CONF_FLOAT_ENABLED     => Configuration::get(self::CONF_FLOAT_ENABLED),
+            self::CONF_FLOAT_POSITION    => Configuration::get(self::CONF_FLOAT_POSITION),
+            self::CONF_FLOAT_BOTTOM      => Configuration::get(self::CONF_FLOAT_BOTTOM),
+            self::CONF_FLOAT_ZINDEX      => Configuration::get(self::CONF_FLOAT_ZINDEX),
+            self::CONF_BUTTON_POSITION   => Configuration::get(self::CONF_BUTTON_POSITION),
+            self::CONF_FLOAT_BG          => Configuration::get(self::CONF_FLOAT_BG),
+            self::CONF_FLOAT_TEXT        => Configuration::get(self::CONF_FLOAT_TEXT),
+            self::CONF_FLOAT_BG_HOVER    => Configuration::get(self::CONF_FLOAT_BG_HOVER),
+            self::CONF_FLOAT_TEXT_HOVER  => Configuration::get(self::CONF_FLOAT_TEXT_HOVER),
+        ];
+    }
+
+    /**
+     * Render del form di configurazione (HelperForm).
+     *
+     * @return string
+     */
+    protected function renderConfigurationForm()
+    {
         $helper = new HelperForm();
-        $helper->show_cancel_button = false;
-        $helper->module = $this;
-        $helper->name_controller = $this->name;
-        $helper->identifier = $this->identifier;
-        $helper->submit_action = 'submitCleanshareModule';
-        $helper->token = Tools::getAdminTokenLite('AdminModules');
-        $helper->currentIndex = AdminController::$currentIndex . '&configure=' . $this->name;
 
-        // valori correnti
-        $helper->fields_value[self::CONF_FLOAT_ENABLED] = Configuration::get(self::CONF_FLOAT_ENABLED);
-        $helper->fields_value[self::CONF_FLOAT_POSITION] = Configuration::get(self::CONF_FLOAT_POSITION);
-        $helper->fields_value[self::CONF_FLOAT_BOTTOM] = Configuration::get(self::CONF_FLOAT_BOTTOM);
-        $helper->fields_value[self::CONF_FLOAT_ZINDEX] = Configuration::get(self::CONF_FLOAT_ZINDEX);
-        $helper->fields_value[self::CONF_BUTTON_POSITION] = Configuration::get(self::CONF_BUTTON_POSITION);
-        $helper->fields_value[self::CONF_FLOAT_BG] = Configuration::get(self::CONF_FLOAT_BG);
-        $helper->fields_value[self::CONF_FLOAT_TEXT] = Configuration::get(self::CONF_FLOAT_TEXT);
-        $helper->fields_value[self::CONF_FLOAT_BG_HOVER] = Configuration::get(self::CONF_FLOAT_BG_HOVER);
-        $helper->fields_value[self::CONF_FLOAT_TEXT_HOVER] = Configuration::get(self::CONF_FLOAT_TEXT_HOVER);
+        $helper->show_toolbar      = false;
+        $helper->show_cancel_button = false;
+        $helper->module            = $this;
+        $helper->name_controller   = $this->name;
+        $helper->identifier        = $this->identifier;
+        $helper->token             = Tools::getAdminTokenLite('AdminModules');
+        $helper->currentIndex      = AdminController::$currentIndex.'&configure='.$this->name;
+        $helper->submit_action     = 'submitCleanshareModule';
+
+        $helper->default_form_language = (int) Configuration::get('PS_LANG_DEFAULT');
+        $helper->allow_employee_form_lang = (int) Configuration::get('PS_BO_ALLOW_EMPLOYEE_FORM_LANG');
+        $helper->languages = $this->context->controller->getLanguages();
+        $helper->id_language = $this->context->language->id;
+
+        $helper->fields_value = $this->getConfigFormValues();
+
+        return $helper->generateForm([$this->getConfigForm()]);
+    }
+
+    /**
+     * Render del blocco credit / copyright.
+     *
+     * @return string
+     */
+    protected function renderCreditsBlock()
+    {
+        $useSsl = (bool) Configuration::get('PS_SSL_ENABLED_EVERYWHERE')
+            || (bool) Configuration::get('PS_SSL_ENABLED');
+
+        $shopBaseUrl = $this->context->link->getBaseLink(
+            (int) $this->context->shop->id,
+            $useSsl
+        );
 
         if ($this->context->smarty->getTemplateVars('module_dir') === null) {
             $this->context->smarty->assign('module_dir', $this->_path);
         }
 
         $this->context->smarty->assign([
-            'shop_base_url' => $shop_base_url,
+            'shop_base_url' => $shopBaseUrl,
         ]);
 
-        $output .= $helper->generateForm([$fields_form]);
-        $output .= $this->context->smarty->fetch($this->local_path . 'views/templates/admin/copyright.tpl');
-        return $output;
+        return $this->context->smarty->fetch(
+            $this->local_path.'views/templates/admin/copyright.tpl'
+        );
+    }
+
+    protected function loadBackOfficeAssets()
+    {
+        if (isset($this->context->controller) && method_exists($this->context->controller, 'addCSS')) {
+            $this->context->controller->addCSS($this->_path.'views/css/admin.css');
+        }
     }
 
     public function shareLink($params)
@@ -391,9 +527,12 @@ class CleanShare extends Module
         // tpl che esporta le traduzioni JS
         $translationsTpl = $this->display(__FILE__, 'views/templates/hook/cleanshare_page.tpl');
 
+        // verifica se il float è abilitato
+        $floatEnabled = Configuration::get(self::CONF_FLOAT_ENABLED) === '1';
+
         // assegna variabili per il template stile del flottante
         $this->context->smarty->assign([
-            'float_enabled' => Configuration::get(self::CONF_FLOAT_ENABLED) === '1',
+            'float_enabled'   => $floatEnabled,
             'float_position' => Configuration::get(self::CONF_FLOAT_POSITION),
             'float_bottom' => (int) Configuration::get(self::CONF_FLOAT_BOTTOM),
             'float_zindex' => (int) Configuration::get(self::CONF_FLOAT_ZINDEX),
@@ -406,8 +545,8 @@ class CleanShare extends Module
         // style tpl (genera lo style inline in base alla config)
         $styleTpl = $this->display(__FILE__, 'views/templates/hook/cleanshare_float_style.tpl');
 
-        // output del pulsante/float (se presente)
-        $floatOutput = $this->shareLinkFloat($params);
+        // output del pulsante/float SOLO se attivo
+        $floatOutput = $floatEnabled ? $this->shareLinkFloat($params) : '';
 
         return $translationsTpl . $styleTpl . $floatOutput;
     }
