@@ -114,8 +114,8 @@ class CleanShare extends Module
     {
         $floatEnabled = Tools::getValue(self::CONF_FLOAT_ENABLED) ? '1' : '0';
 
-        $posCandidate  = strtolower((string) Tools::getValue(self::CONF_FLOAT_POSITION));
-        $allowedPos    = ['left', 'right', 'centered'];
+        $posCandidate = strtolower((string) Tools::getValue(self::CONF_FLOAT_POSITION));
+        $allowedPos = ['left', 'right', 'centered'];
         $floatPosition = in_array($posCandidate, $allowedPos, true) ? $posCandidate : 'right';
 
         $bottomRaw = Tools::getValue(self::CONF_FLOAT_BOTTOM);
@@ -133,14 +133,14 @@ class CleanShare extends Module
         }
 
         $buttonPosCandidate = (string) Tools::getValue(self::CONF_BUTTON_POSITION);
-        $allowedHooks       = ['displayProductAdditionalInfo', 'showProductCustomized', 'disabled'];
-        $buttonPos          = in_array($buttonPosCandidate, $allowedHooks, true)
+        $allowedHooks = ['displayProductAdditionalInfo', 'showProductCustomized', 'disabled'];
+        $buttonPos = in_array($buttonPosCandidate, $allowedHooks, true)
             ? $buttonPosCandidate
             : 'displayProductAdditionalInfo';
 
-        $floatBg        = $this->sanitizeColor(Tools::getValue(self::CONF_FLOAT_BG), '#2196F3');
-        $floatText      = $this->sanitizeColor(Tools::getValue(self::CONF_FLOAT_TEXT), '#ffffff');
-        $floatBgHover   = $this->sanitizeColor(Tools::getValue(self::CONF_FLOAT_BG_HOVER), '#1976D2');
+        $floatBg = $this->sanitizeColor(Tools::getValue(self::CONF_FLOAT_BG), '#2196F3');
+        $floatText = $this->sanitizeColor(Tools::getValue(self::CONF_FLOAT_TEXT), '#ffffff');
+        $floatBgHover = $this->sanitizeColor(Tools::getValue(self::CONF_FLOAT_BG_HOVER), '#1976D2');
         $floatTextHover = $this->sanitizeColor(Tools::getValue(self::CONF_FLOAT_TEXT_HOVER), '#ffffff');
 
         Configuration::updateValue(self::CONF_FLOAT_ENABLED, $floatEnabled);
@@ -186,115 +186,115 @@ class CleanShare extends Module
             'form' => [
                 'legend' => [
                     'title' => $this->l('CleanShare settings'),
-                    'icon'  => 'icon-share',
+                    'icon' => 'icon-share',
                 ],
                 'input' => [
                     [
-                        'type'    => 'switch',
-                        'label'   => $this->l('Enable floating button'),
-                        'name'    => self::CONF_FLOAT_ENABLED,
+                        'type' => 'switch',
+                        'label' => $this->l('Enable floating button'),
+                        'name' => self::CONF_FLOAT_ENABLED,
                         'is_bool' => true,
-                        'desc'    => $this->l('Activate a floating share button displayed on all product pages.'),
-                        'hint'    => $this->l('When enabled, a floating button appears on the screen with customizable styles.'),
-                        'values'  => [
+                        'desc' => $this->l('Activate a floating share button displayed on all product pages.'),
+                        'hint' => $this->l('When enabled, a floating button appears on the screen with customizable styles.'),
+                        'values' => [
                             [
-                                'id'    => 'active_on',
+                                'id' => 'active_on',
                                 'value' => '1',
                                 'label' => $this->l('Enabled'),
                             ],
                             [
-                                'id'    => 'active_off',
+                                'id' => 'active_off',
                                 'value' => '0',
                                 'label' => $this->l('Disabled'),
                             ],
                         ],
                     ],
                     [
-                        'type'  => 'color',
+                        'type' => 'color',
                         'label' => $this->l('Background color'),
-                        'name'  => self::CONF_FLOAT_BG,
-                        'desc'  => $this->l('Main background color of the floating button.'),
-                        'hint'  => $this->l('Use a valid hexadecimal color value.'),
-                        'size'  => 7,
+                        'name' => self::CONF_FLOAT_BG,
+                        'desc' => $this->l('Main background color of the floating button.'),
+                        'hint' => $this->l('Use a valid hexadecimal color value.'),
+                        'size' => 7,
                     ],
                     [
-                        'type'  => 'color',
+                        'type' => 'color',
                         'label' => $this->l('Text color'),
-                        'name'  => self::CONF_FLOAT_TEXT,
-                        'desc'  => $this->l('Color applied to the button icon and text.'),
-                        'hint'  => $this->l('Use a valid hexadecimal color (e.g., #FFFFFF).'),
-                        'size'  => 7,
+                        'name' => self::CONF_FLOAT_TEXT,
+                        'desc' => $this->l('Color applied to the button icon and text.'),
+                        'hint' => $this->l('Use a valid hexadecimal color (e.g., #FFFFFF).'),
+                        'size' => 7,
                     ],
                     [
-                        'type'  => 'color',
+                        'type' => 'color',
                         'label' => $this->l('Background color (hover)'),
-                        'name'  => self::CONF_FLOAT_BG_HOVER,
-                        'desc'  => $this->l('Background color when the user hovers over the button.'),
-                        'hint'  => $this->l('Use a valid hexadecimal color value.'),
-                        'size'  => 7,
+                        'name' => self::CONF_FLOAT_BG_HOVER,
+                        'desc' => $this->l('Background color when the user hovers over the button.'),
+                        'hint' => $this->l('Use a valid hexadecimal color value.'),
+                        'size' => 7,
                     ],
                     [
-                        'type'  => 'color',
+                        'type' => 'color',
                         'label' => $this->l('Text color (hover)'),
-                        'name'  => self::CONF_FLOAT_TEXT_HOVER,
-                        'desc'  => $this->l('Text color when hovering over the button.'),
-                        'hint'  => $this->l('Use a valid hexadecimal color.'),
-                        'size'  => 7,
+                        'name' => self::CONF_FLOAT_TEXT_HOVER,
+                        'desc' => $this->l('Text color when hovering over the button.'),
+                        'hint' => $this->l('Use a valid hexadecimal color.'),
+                        'size' => 7,
                     ],
                     [
-                        'type'  => 'select',
+                        'type' => 'select',
                         'label' => $this->l('Floating position'),
-                        'name'  => self::CONF_FLOAT_POSITION,
-                        'desc'  => $this->l('Choose where the floating button will appear horizontally.'),
-                        'hint'  => $this->l('Left, centered or right aligned based on your layout.'),
+                        'name' => self::CONF_FLOAT_POSITION,
+                        'desc' => $this->l('Choose where the floating button will appear horizontally.'),
+                        'hint' => $this->l('Left, centered or right aligned based on your layout.'),
                         'options' => [
                             'query' => [
                                 ['id' => 'left',     'name' => $this->l('Left')],
                                 ['id' => 'centered', 'name' => $this->l('Centered')],
                                 ['id' => 'right',    'name' => $this->l('Right')],
                             ],
-                            'id'   => 'id',
+                            'id' => 'id',
                             'name' => 'name',
                         ],
                     ],
                     [
-                        'type'  => 'text',
+                        'type' => 'text',
                         'label' => $this->l('Floating bottom (px)'),
-                        'name'  => self::CONF_FLOAT_BOTTOM,
-                        'size'  => 6,
-                        'hint'  => $this->l('Enter a non-negative integer value (pixels from the bottom).'),
-                        'desc'  => $this->l('Distance from bottom of the screen in pixels. Recommended: 40–150px.'),
+                        'name' => self::CONF_FLOAT_BOTTOM,
+                        'size' => 6,
+                        'hint' => $this->l('Enter a non-negative integer value (pixels from the bottom).'),
+                        'desc' => $this->l('Distance from bottom of the screen in pixels. Recommended: 40–150px.'),
                     ],
                     [
-                        'type'  => 'text',
+                        'type' => 'text',
                         'label' => $this->l('Floating z-index'),
-                        'name'  => self::CONF_FLOAT_ZINDEX,
-                        'size'  => 6,
-                        'hint'  => $this->l('Higher values keep the button on top of other elements. Non-negative integer.'),
-                        'desc'  => $this->l('Layer priority. Higher value keeps the button above other elements. Recommended: 9000–9999.'),
+                        'name' => self::CONF_FLOAT_ZINDEX,
+                        'size' => 6,
+                        'hint' => $this->l('Higher values keep the button on top of other elements. Non-negative integer.'),
+                        'desc' => $this->l('Layer priority. Higher value keeps the button above other elements. Recommended: 9000–9999.'),
                     ],
                     [
-                        'type'  => 'select',
+                        'type' => 'select',
                         'label' => $this->l('Position for the inline share button'),
-                        'name'  => self::CONF_BUTTON_POSITION,
-                        'desc'  => $this->l('Where to place the inline share button inside product pages.'),
-                        'hint'  => $this->l('Disabled removes the inline button entirely.'),
+                        'name' => self::CONF_BUTTON_POSITION,
+                        'desc' => $this->l('Where to place the inline share button inside product pages.'),
+                        'hint' => $this->l('Disabled removes the inline button entirely.'),
                         'options' => [
                             'query' => [
                                 [
-                                    'id'   => 'displayProductAdditionalInfo',
+                                    'id' => 'displayProductAdditionalInfo',
                                     'name' => $this->l('displayProductAdditionalInfo'),
                                 ],
                                 [
-                                    'id'   => 'showProductCustomized',
+                                    'id' => 'showProductCustomized',
                                     'name' => $this->l('showProductCustomized'),
                                 ],
                                 [
-                                    'id'   => 'disabled',
+                                    'id' => 'disabled',
                                     'name' => $this->l('Disabled'),
                                 ],
                             ],
-                            'id'   => 'id',
+                            'id' => 'id',
                             'name' => 'name',
                         ],
                     ],
@@ -315,15 +315,15 @@ class CleanShare extends Module
     protected function getConfigFormValues()
     {
         return [
-            self::CONF_FLOAT_ENABLED     => Configuration::get(self::CONF_FLOAT_ENABLED),
-            self::CONF_FLOAT_POSITION    => Configuration::get(self::CONF_FLOAT_POSITION),
-            self::CONF_FLOAT_BOTTOM      => Configuration::get(self::CONF_FLOAT_BOTTOM),
-            self::CONF_FLOAT_ZINDEX      => Configuration::get(self::CONF_FLOAT_ZINDEX),
-            self::CONF_BUTTON_POSITION   => Configuration::get(self::CONF_BUTTON_POSITION),
-            self::CONF_FLOAT_BG          => Configuration::get(self::CONF_FLOAT_BG),
-            self::CONF_FLOAT_TEXT        => Configuration::get(self::CONF_FLOAT_TEXT),
-            self::CONF_FLOAT_BG_HOVER    => Configuration::get(self::CONF_FLOAT_BG_HOVER),
-            self::CONF_FLOAT_TEXT_HOVER  => Configuration::get(self::CONF_FLOAT_TEXT_HOVER),
+            self::CONF_FLOAT_ENABLED => Configuration::get(self::CONF_FLOAT_ENABLED),
+            self::CONF_FLOAT_POSITION => Configuration::get(self::CONF_FLOAT_POSITION),
+            self::CONF_FLOAT_BOTTOM => Configuration::get(self::CONF_FLOAT_BOTTOM),
+            self::CONF_FLOAT_ZINDEX => Configuration::get(self::CONF_FLOAT_ZINDEX),
+            self::CONF_BUTTON_POSITION => Configuration::get(self::CONF_BUTTON_POSITION),
+            self::CONF_FLOAT_BG => Configuration::get(self::CONF_FLOAT_BG),
+            self::CONF_FLOAT_TEXT => Configuration::get(self::CONF_FLOAT_TEXT),
+            self::CONF_FLOAT_BG_HOVER => Configuration::get(self::CONF_FLOAT_BG_HOVER),
+            self::CONF_FLOAT_TEXT_HOVER => Configuration::get(self::CONF_FLOAT_TEXT_HOVER),
         ];
     }
 
@@ -340,7 +340,7 @@ class CleanShare extends Module
         $helper->name_controller = $this->name;
         $helper->identifier = $this->identifier;
         $helper->token = Tools::getAdminTokenLite('AdminModules');
-        $helper->currentIndex = AdminController::$currentIndex.'&configure='.$this->name;
+        $helper->currentIndex = AdminController::$currentIndex . '&configure=' . $this->name;
 
         $helper->default_form_language = (int) Configuration::get('PS_LANG_DEFAULT');
         $helper->allow_employee_form_lang = (int) Configuration::get('PS_BO_ALLOW_EMPLOYEE_FORM_LANG');
@@ -376,7 +376,7 @@ class CleanShare extends Module
             'shop_base_url' => $shopBaseUrl,
         ]);
 
-        return $this->context->smarty->fetch($this->local_path.'views/templates/admin/copyright.tpl');
+        return $this->context->smarty->fetch($this->local_path . 'views/templates/admin/copyright.tpl');
     }
 
     protected function loadBackOfficeAssets()
@@ -386,7 +386,7 @@ class CleanShare extends Module
         }
 
         // CSS per uniformare lo stile del pannello su PS 8.x
-        $this->context->controller->addCSS($this->_path.'views/css/admin.css');
+        $this->context->controller->addCSS($this->_path . 'views/css/admin.css');
     }
 
     public function shareLink($params)
@@ -496,7 +496,7 @@ class CleanShare extends Module
 
                 try {
                     $cleanUrl = $link->getModuleLink($moduleName, $moduleController, $paramsToPass, $id_lang);
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     $cleanUrl = '';
                 }
             }
@@ -543,7 +543,7 @@ class CleanShare extends Module
 
         // assegna variabili per il template stile del flottante
         $this->context->smarty->assign([
-            'float_enabled'   => $floatEnabled,
+            'float_enabled' => $floatEnabled,
             'float_position' => Configuration::get(self::CONF_FLOAT_POSITION),
             'float_bottom' => (int) Configuration::get(self::CONF_FLOAT_BOTTOM),
             'float_zindex' => (int) Configuration::get(self::CONF_FLOAT_ZINDEX),
